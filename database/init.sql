@@ -1,17 +1,8 @@
-﻿-- PostgreSQL setup script for QLHS_DNN_TVU with full schema
--- Set UTF-8 encoding
+﻿CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create database
-CREATE DATABASE qlhs_dnn_tvu WITH ENCODING 'UTF8' TEMPLATE template0;
+-- I. Tá»” CHá»¨C  NHÃ‚N Sá»° (7 báº£ng)
 
--- Connect to the database
-\c qlhs_dnn_tvu;
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- I. TỔ CHỨC  NHÂN SỰ (7 bảng)
-
-CREATE TABLE don_vi (
+CREATE TABLE IF NOT EXISTS don_vi (
     don_vi_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ma_don_vi VARCHAR(20),
     ten_don_vi VARCHAR(255) NOT NULL,
@@ -21,7 +12,7 @@ CREATE TABLE don_vi (
     FOREIGN KEY (don_vi_cha_id) REFERENCES don_vi(don_vi_id)
 );
 
-CREATE TABLE vien_chuc (
+CREATE TABLE IF NOT EXISTS vien_chuc (
     vien_chuc_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ma_vien_chuc VARCHAR(20),
     ho_ten VARCHAR(255) NOT NULL,
@@ -34,7 +25,7 @@ CREATE TABLE vien_chuc (
     FOREIGN KEY (don_vi_id) REFERENCES don_vi(don_vi_id)
 );
 
-CREATE TABLE nguoi_dung (
+CREATE TABLE IF NOT EXISTS nguoi_dung (
     nguoi_dung_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     vien_chuc_id UUID UNIQUE,
     ten_dang_nhap VARCHAR(50) UNIQUE NOT NULL,
@@ -45,21 +36,21 @@ CREATE TABLE nguoi_dung (
     FOREIGN KEY (vien_chuc_id) REFERENCES vien_chuc(vien_chuc_id)
 );
 
-CREATE TABLE vai_tro (
+CREATE TABLE IF NOT EXISTS vai_tro (
     vai_tro_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ma_vai_tro VARCHAR(50),
     ten_vai_tro VARCHAR(100),
     mo_ta TEXT
 );
 
-CREATE TABLE phan_quyen (
+CREATE TABLE IF NOT EXISTS phan_quyen (
     phan_quyen_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ma_quyen VARCHAR(50),
     ten_quyen VARCHAR(100),
     mo_ta TEXT
 );
 
-CREATE TABLE nguoi_dung_vai_tro (
+CREATE TABLE IF NOT EXISTS nguoi_dung_vai_tro (
     nguoi_dung_id UUID,
     vai_tro_id UUID,
     ngay_gan TIMESTAMP,
@@ -68,7 +59,7 @@ CREATE TABLE nguoi_dung_vai_tro (
     FOREIGN KEY (vai_tro_id) REFERENCES vai_tro(vai_tro_id)
 );
 
-CREATE TABLE vai_tro_phan_quyen (
+CREATE TABLE IF NOT EXISTS vai_tro_phan_quyen (
     vai_tro_id UUID,
     phan_quyen_id UUID,
     PRIMARY KEY (vai_tro_id, phan_quyen_id),
@@ -76,9 +67,9 @@ CREATE TABLE vai_tro_phan_quyen (
     FOREIGN KEY (phan_quyen_id) REFERENCES phan_quyen(phan_quyen_id)
 );
 
--- II. HỒ SƠ ĐI NƯỚC NGOÀI (3 bảng)
+-- II. Há»’ SÆ  ÄI NÆ¯á»šC NGOÃ€I (3 báº£ng)
 
-CREATE TABLE ho_so_di_nuoc_ngoai (
+CREATE TABLE IF NOT EXISTS ho_so_di_nuoc_ngoai (
     ho_so_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ma_ho_so VARCHAR(30),
     vien_chuc_id UUID,
@@ -94,7 +85,7 @@ CREATE TABLE ho_so_di_nuoc_ngoai (
     FOREIGN KEY (vien_chuc_id) REFERENCES vien_chuc(vien_chuc_id)
 );
 
-CREATE TABLE tai_lieu_dinh_kem (
+CREATE TABLE IF NOT EXISTS tai_lieu_dinh_kem (
     tai_lieu_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ho_so_id UUID,
     loai_tai_lieu_id INT,
@@ -105,7 +96,7 @@ CREATE TABLE tai_lieu_dinh_kem (
     FOREIGN KEY (ho_so_id) REFERENCES ho_so_di_nuoc_ngoai(ho_so_id)
 );
 
-CREATE TABLE bao_cao_sau_chuyen_di (
+CREATE TABLE IF NOT EXISTS bao_cao_sau_chuyen_di (
     bao_cao_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ho_so_id UUID UNIQUE,
     ngay_nop DATE,
@@ -116,16 +107,16 @@ CREATE TABLE bao_cao_sau_chuyen_di (
     FOREIGN KEY (ho_so_id) REFERENCES ho_so_di_nuoc_ngoai(ho_so_id)
 );
 
--- III. PHÊ DUYỆT  WORKFLOW (6 bảng)
+-- III. PHÃŠ DUYá»†T  WORKFLOW (6 báº£ng)
 
-CREATE TABLE cap_phe_duyet (
+CREATE TABLE IF NOT EXISTS cap_phe_duyet (
     cap_phe_duyet_id INT PRIMARY KEY,
     ma_cap VARCHAR(20),
     ten_cap VARCHAR(100),
     thu_tu INT
 );
 
-CREATE TABLE phe_duyet (
+CREATE TABLE IF NOT EXISTS phe_duyet (
     phe_duyet_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ho_so_id UUID,
     cap_phe_duyet_id INT,
@@ -138,14 +129,14 @@ CREATE TABLE phe_duyet (
     FOREIGN KEY (nguoi_duyet_id) REFERENCES nguoi_dung(nguoi_dung_id)
 );
 
-CREATE TABLE luong_xu_ly (
+CREATE TABLE IF NOT EXISTS luong_xu_ly (
     luong_xu_ly_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ten_luong VARCHAR(100),
     loai_ap_dung VARCHAR(50),
     mo_ta TEXT
 );
 
-CREATE TABLE buoc_xu_ly (
+CREATE TABLE IF NOT EXISTS buoc_xu_ly (
     buoc_xu_ly_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     luong_xu_ly_id UUID,
     ten_buoc VARCHAR(100),
@@ -154,7 +145,7 @@ CREATE TABLE buoc_xu_ly (
     FOREIGN KEY (luong_xu_ly_id) REFERENCES luong_xu_ly(luong_xu_ly_id)
 );
 
-CREATE TABLE ho_so_buoc_xu_ly (
+CREATE TABLE IF NOT EXISTS ho_so_buoc_xu_ly (
     ho_so_id UUID,
     buoc_xu_ly_id UUID,
     trang_thai VARCHAR(50),
@@ -165,7 +156,7 @@ CREATE TABLE ho_so_buoc_xu_ly (
     FOREIGN KEY (buoc_xu_ly_id) REFERENCES buoc_xu_ly(buoc_xu_ly_id)
 );
 
-CREATE TABLE lich_su_trang_thai (
+CREATE TABLE IF NOT EXISTS lich_su_trang_thai (
     lich_su_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ho_so_id UUID,
     trang_thai_id INT,
@@ -175,15 +166,15 @@ CREATE TABLE lich_su_trang_thai (
     FOREIGN KEY (nguoi_thuc_hien_id) REFERENCES nguoi_dung(nguoi_dung_id)
 );
 
--- IV. ĐẢNG VIÊN (3 bảng)
+-- IV. Äáº¢NG VIÃŠN (3 báº£ng)
 
-CREATE TABLE don_vi_dang (
+CREATE TABLE IF NOT EXISTS don_vi_dang (
     don_vi_dang_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ten_don_vi VARCHAR(255),
     cap_do VARCHAR(50)
 );
 
-CREATE TABLE thong_tin_dang_vien (
+CREATE TABLE IF NOT EXISTS thong_tin_dang_vien (
     thong_tin_dang_vien_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     vien_chuc_id UUID UNIQUE,
     don_vi_dang_id UUID,
@@ -193,7 +184,7 @@ CREATE TABLE thong_tin_dang_vien (
     FOREIGN KEY (don_vi_dang_id) REFERENCES don_vi_dang(don_vi_dang_id)
 );
 
-CREATE TABLE phe_duyet_dang (
+CREATE TABLE IF NOT EXISTS phe_duyet_dang (
     phe_duyet_dang_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ho_so_id UUID,
     don_vi_dang_id UUID,
@@ -205,15 +196,15 @@ CREATE TABLE phe_duyet_dang (
     FOREIGN KEY (don_vi_dang_id) REFERENCES don_vi_dang(don_vi_dang_id)
 );
 
--- V. QUYẾT ĐỊNH  VĂN THƯ (4 bảng)
+-- V. QUYáº¾T Äá»ŠNH  VÄ‚N THÆ¯ (4 báº£ng)
 
-CREATE TABLE loai_quyet_dinh (
+CREATE TABLE IF NOT EXISTS loai_quyet_dinh (
     loai_quyet_dinh_id INT PRIMARY KEY,
     ten_loai VARCHAR(100),
     mo_ta TEXT
 );
 
-CREATE TABLE so_van_ban (
+CREATE TABLE IF NOT EXISTS so_van_ban (
     so_van_ban_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nam INT,
     so_hien_tai INT,
@@ -221,7 +212,7 @@ CREATE TABLE so_van_ban (
     FOREIGN KEY (loai_quyet_dinh_id) REFERENCES loai_quyet_dinh(loai_quyet_dinh_id)
 );
 
-CREATE TABLE quyet_dinh (
+CREATE TABLE IF NOT EXISTS quyet_dinh (
     quyet_dinh_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ho_so_id UUID UNIQUE,
     so_quyet_dinh VARCHAR(50),
@@ -235,7 +226,7 @@ CREATE TABLE quyet_dinh (
     FOREIGN KEY (so_van_ban_id) REFERENCES so_van_ban(so_van_ban_id)
 );
 
-CREATE TABLE tep_van_ban (
+CREATE TABLE IF NOT EXISTS tep_van_ban (
     tep_van_ban_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     quyet_dinh_id UUID,
     ten_file VARCHAR(255),
@@ -244,9 +235,9 @@ CREATE TABLE tep_van_ban (
     FOREIGN KEY (quyet_dinh_id) REFERENCES quyet_dinh(quyet_dinh_id)
 );
 
--- VI. DANH MỤC (5 bảng)
+-- VI. DANH Má»¤C (5 báº£ng)
 
-CREATE TABLE dm_muc_dich_chuyen_di (
+CREATE TABLE IF NOT EXISTS dm_muc_dich_chuyen_di (
     id INT PRIMARY KEY,
     ma VARCHAR(20),
     ten VARCHAR(255),
@@ -254,7 +245,7 @@ CREATE TABLE dm_muc_dich_chuyen_di (
     trang_thai BOOLEAN
 );
 
-CREATE TABLE dm_loai_chuyen_di (
+CREATE TABLE IF NOT EXISTS dm_loai_chuyen_di (
     loai_chuyen_di_id INT PRIMARY KEY,
     ma VARCHAR(20),
     ten VARCHAR(255),
@@ -262,7 +253,7 @@ CREATE TABLE dm_loai_chuyen_di (
     trang_thai BOOLEAN
 );
 
-CREATE TABLE dm_quoc_gia (
+CREATE TABLE IF NOT EXISTS dm_quoc_gia (
     quoc_gia_id INT PRIMARY KEY,
     ma VARCHAR(10),
     ten VARCHAR(255),
@@ -270,7 +261,7 @@ CREATE TABLE dm_quoc_gia (
     trang_thai BOOLEAN
 );
 
-CREATE TABLE dm_loai_tai_lieu (
+CREATE TABLE IF NOT EXISTS dm_loai_tai_lieu (
     loai_tai_lieu_id INT PRIMARY KEY,
     ma VARCHAR(30),
     ten VARCHAR(255),
@@ -278,7 +269,7 @@ CREATE TABLE dm_loai_tai_lieu (
     trang_thai BOOLEAN
 );
 
-CREATE TABLE dm_trang_thai_ho_so (
+CREATE TABLE IF NOT EXISTS dm_trang_thai_ho_so (
     trang_thai_id INT PRIMARY KEY,
     ma VARCHAR(30),
     ten VARCHAR(255),
@@ -286,9 +277,9 @@ CREATE TABLE dm_trang_thai_ho_so (
     trang_thai BOOLEAN
 );
 
--- VII. BẢO MẬT  HỆ THỐNG (8 bảng)
+-- VII. Báº¢O Máº¬T  Há»† THá»NG (8 báº£ng)
 
-CREATE TABLE audit_log (
+CREATE TABLE IF NOT EXISTS audit_log (
     audit_log_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nguoi_dung_id UUID,
     hanh_dong VARCHAR(100),
@@ -299,7 +290,7 @@ CREATE TABLE audit_log (
     FOREIGN KEY (nguoi_dung_id) REFERENCES nguoi_dung(nguoi_dung_id)
 );
 
-CREATE TABLE lich_su_dang_nhap (
+CREATE TABLE IF NOT EXISTS lich_su_dang_nhap (
     lich_su_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nguoi_dung_id UUID,
     thoi_diem TIMESTAMP,
@@ -308,14 +299,14 @@ CREATE TABLE lich_su_dang_nhap (
     FOREIGN KEY (nguoi_dung_id) REFERENCES nguoi_dung(nguoi_dung_id)
 );
 
-CREATE TABLE cau_hinh_he_thong (
+CREATE TABLE IF NOT EXISTS cau_hinh_he_thong (
     cau_hinh_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     khoa VARCHAR(100),
     gia_tri TEXT,
     mo_ta TEXT
 );
 
-CREATE TABLE thong_bao (
+CREATE TABLE IF NOT EXISTS thong_bao (
     thong_bao_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nguoi_nhan_id UUID,
     noi_dung TEXT,
@@ -324,7 +315,7 @@ CREATE TABLE thong_bao (
     FOREIGN KEY (nguoi_nhan_id) REFERENCES nguoi_dung(nguoi_dung_id)
 );
 
-CREATE TABLE hang_doi_xu_ly (
+CREATE TABLE IF NOT EXISTS hang_doi_xu_ly (
     hang_doi_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     loai_tac_vu VARCHAR(100),
     du_lieu JSON,
@@ -332,24 +323,25 @@ CREATE TABLE hang_doi_xu_ly (
     thoi_diem_tao TIMESTAMP
 );
 
-CREATE TABLE thoi_han_nghiep_vu (
+CREATE TABLE IF NOT EXISTS thoi_han_nghiep_vu (
     thoi_han_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     loai_nghiep_vu VARCHAR(100),
     so_ngay INT,
     mo_ta TEXT
 );
 
-CREATE TABLE bao_tri_he_thong (
+CREATE TABLE IF NOT EXISTS bao_tri_he_thong (
     bao_tri_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     thoi_diem TIMESTAMP,
     noi_dung TEXT,
     nguoi_thuc_hien VARCHAR(255)
 );
 
-CREATE TABLE tep_dinh_kem (
+CREATE TABLE IF NOT EXISTS tep_dinh_kem (
     tep_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     duong_dan VARCHAR(500),
     loai_tep VARCHAR(50),
     kich_thuoc BIGINT,
     ngay_tao TIMESTAMP
 );
+
