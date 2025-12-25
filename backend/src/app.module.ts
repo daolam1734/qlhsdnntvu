@@ -4,12 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
-import { RecordsModule } from './records/records.module';
 import { AuthModule } from './auth/auth.module';
-import { FilesModule } from './files/files.module';
 import { User } from './users/user.entity';
-import { HoSoDiNuocNgoai } from './records/record.entity';
-import { TaiLieuDinhKem } from './files/file.entity';
 
 @Module({
   imports: [
@@ -23,13 +19,11 @@ import { TaiLieuDinhKem } from './files/file.entity';
       username: process.env.DB_USER || 'your_username',
       password: process.env.DB_PASSWORD || 'your_password',
       database: process.env.DB_NAME || 'qlhs_dnn_tvu',
-      entities: [User, HoSoDiNuocNgoai, TaiLieuDinhKem],
+      entities: [User],
       synchronize: true, // Set to false in production
     }),
     UsersModule,
-    RecordsModule,
     AuthModule,
-    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

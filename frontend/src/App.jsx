@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import Login from './components/Login';
-import RecordsList from './components/RecordsList';
 import './App.css';
 
 function App() {
@@ -38,22 +36,16 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
-        {isAuthenticated ? (
-          <>
-            <button onClick={handleLogout}>Logout</button>
-            <p>Welcome, {user.email} ({user.role})</p>
-            <Routes>
-              <Route path="/records" element={<RecordsList user={user} />} />
-              <Route path="*" element={<Navigate to="/records" />} />
-            </Routes>
-          </>
-        ) : (
-          <Login onLogin={handleLogin} />
-        )}
-      </div>
-    </Router>
+    <div className="App">
+      {isAuthenticated ? (
+        <>
+          <button onClick={handleLogout}>Logout</button>
+          <p>Welcome, {user.email} ({user.role})</p>
+        </>
+      ) : (
+        <Login onLogin={handleLogin} />
+      )}
+    </div>
   );
 }
 

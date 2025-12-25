@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { HoSoDiNuocNgoai } from '../records/record.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('nguoi_dung')
 export class User {
@@ -20,7 +19,4 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   lan_dang_nhap_cuoi: Date;
-
-  @OneToMany(() => HoSoDiNuocNgoai, hoSo => hoSo.vien_chuc)
-  records: HoSoDiNuocNgoai[];
 }
