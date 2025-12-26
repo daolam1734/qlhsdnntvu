@@ -2,15 +2,17 @@
 // Express application initialization
 
 const express = require('express');
-const cors = require('cors');
 const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-
-const env = require('./config/env');
-const logger = require('./config/logger');
-const routes = require('./routes');
-const errorHandler = require('./middlewares/error.middleware');
+const cors = require('cors');
+const authRoutes = require('./routes/auth');
+const categoryRoutes = require('./routes/category');
+const userRoutes = require('./routes/user');
+const roleRoutes = require('./routes/role');
+const permissionRoutes = require('./routes/permission');
+const userRoleRoutes = require('./routes/userRole');
+const rolePermissionRoutes = require('./routes/rolePermission');
+const positionRoleRoutes = require('./routes/positionRole');
+const { apiRateLimit } = require('./middleware/rateLimit');
 
 // Create Express application
 const app = express();
@@ -23,62 +25,69 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX_REQUESTS,
-  message: {
-    success: false,
-    statusCode: 429,
-    message: 'Too many requests from this IP, please try again later.',
-    timestamp: new Date().toISOString()
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use('/api/', limiter);
+app.use('/api/', apiRateLimit);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logging middleware
-if (env.isDevelopment()) {
-  app.use(morgan('combined'));
-} else {
-  app.use(morgan('combined', { stream: logger.stream }));
-}
-
-// Request logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
-  });
-  next();
-});
-
-// API routes
-app.use('/api', routes);
-
-// Root endpoint
-app.get('/', (req, res) => {
+// Health check endpoint
+app.get('/health', (req, res) => {
   res.json({
-    message: 'Welcome to QLHS_DNN_TVU Backend API',
-    version: env.APP_VERSION,
-    environment: env.NODE_ENV,
+    success: true,
+    message: 'Server is healthy',
     timestamp: new Date().toISOString()
   });
 });
 
-// Error handling middleware (must be last)
-app.use(errorHandler);
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/roles', roleRoutes);
+app.use('/api/permissions', permissionRoutes);
+app.use('/api/user-roles', userRoleRoutes);
+app.use('/api/role-permissions', rolePermissionRoutes);
+app.use('/api/position-roles', positionRoleRoutes);
+
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint không tồn tại'
+  });
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+  console.error('Global error:', error);
+
+  // Handle different types of errors
+  if (error.type === 'entity.parse.failed') {
+    return res.status(400).json({
+      success: false,
+      message: 'Dữ liệu JSON không hợp lệ'
+    });
+  }
+
+  if (error.type === 'entity.too.large') {
+    return res.status(413).json({
+      success: false,
+      message: 'Dữ liệu quá lớn'
+    });
+  }
+
+  res.status(500).json({
+    success: false,
+    message: 'Lỗi hệ thống. Vui lòng thử lại sau.'
+  });
+});
 
 module.exports = app;

@@ -1,85 +1,60 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
-import { Spin } from 'antd';
-import 'antd/dist/reset.css'; // Import Ant Design styles
-import './styles/global.css'; // Import global styles
+import { useState } from 'react'
+import './App.css'
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginPage from './pages/LoginPage';
+import Dashboard from './pages/Dashboard';
 
-import AuthLayout from './layouts/AuthLayout';
-import MainLayout from './layouts/MainLayout';
-import { routes } from './routes';
-import { useAuth } from './hooks';
+function AppContent() {
+  const { user, loading } = useAuth();
 
-// Loading component
-const LoadingSpinner = () => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh'
-  }}>
-    <Spin size="large" />
-  </div>
-);
-
-// Protected Route component
-const ProtectedRoute = ({ children, requiresAuth, roles }) => {
-  const { isAuthenticated, user } = useAuth();
-
-  if (requiresAuth && !isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8f9fa'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          padding: '2rem',
+          background: 'white',
+          borderRadius: '10px',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.10)'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{ margin: 0, color: '#666' }}>Đang tải...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
   }
 
-  if (roles && user && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />;
-  }
+  return user ? <Dashboard /> : <LoginPage />;
+}
 
-  return children;
-};
-
-// App component
 function App() {
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#1890ff',
-          borderRadius: 6,
-        },
-      }}
-      locale={{
-        locale: 'vi_VN', // Vietnamese locale if available
-      }}
-    >
-      <Router>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            {routes.map((route) => {
-              const Layout = route.layout === 'auth' ? AuthLayout : MainLayout;
-              const Component = route.component;
-
-              return (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={
-                    <ProtectedRoute
-                      requiresAuth={route.requiresAuth}
-                      roles={route.roles}
-                    >
-                      <Layout>
-                        <Component />
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-              );
-            })}
-          </Routes>
-        </Suspense>
-      </Router>
-    </ConfigProvider>
+    <AuthProvider>
+      <div className="App">
+        <AppContent />
+      </div>
+    </AuthProvider>
   );
 }
 
-export default App;
+export default App

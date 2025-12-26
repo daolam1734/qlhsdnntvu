@@ -1,0 +1,150 @@
+.dashboard {
+  min-height: 100vh;
+}
+
+.dashboard-body {
+  display: flex;
+  min-height: 100vh; /* Full height since header is fixed */
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-content h2 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.widgets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.widget-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .widgets-row {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content {
+    margin-left: 200px;
+  }
+
+  .main-content.sidebar-collapsed {
+    margin-left: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .main-content.sidebar-collapsed {
+    margin-left: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .widgets-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .dashboard-content h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 10px;
+  }
+
+  .dashboard-content {
+    padding: 0;
+  }
+}
+
+/* Loading states */
+.dashboard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty states */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7f8c8d;
+}
+
+.empty-state h3 {
+  margin-bottom: 10px;
+  color: #34495e;
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+}
+
+/* Error states */
+.error-state {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: #c0392b;
+}
+
+.error-state h3 {
+  margin-top: 0;
+  color: #c0392b;
+}
